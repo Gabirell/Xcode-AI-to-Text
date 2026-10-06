@@ -2,6 +2,7 @@ import Cocoa
 import ApplicationServices
 
 @main
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private let saver = AnswerSaver()
@@ -20,7 +21,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.menu = menu
         globalMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.keyDown]) { [weak self] event in
             guard event.modifierFlags.contains([.command, .option]), event.charactersIgnoringModifiers?.lowercased() == "s" else { return }
-            self?.saveAnswer()
+            Task { @MainActor in
+                self?.saveAnswer()
+            }
         }
     }
 

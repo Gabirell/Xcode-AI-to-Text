@@ -2,112 +2,109 @@
 
 Save complete Xcode Coding Intelligence answers as Markdown instead of manually copying fragments and code snippets.
 
-Xcode AI to Text is a small macOS menu-bar utility paired with an Xcode Source Editor Extension. It is intentionally local and simple: no API keys, no AI service, and no cloud account.
+Xcode AI to Text is a small local macOS menu-bar utility paired with an Xcode Source Editor Extension. It is designed around one workflow: capture the complete AI answer, save it as `Markdown`, and keep the full answer on the clipboard for immediate copy/paste.
 
 ## What it does
 
-- Capture a complete, visible Xcode AI answer through macOS Accessibility when available.
-- Preserve the answer as Markdown, including headings, lists, tables, and fenced code blocks.
-- Copy the complete Markdown answer to the clipboard so it is ready to paste anywhere.
+- Capture the complete visible Xcode AI answer through macOS Accessibility.
+- Preserve Markdown structure, including headings, lists, tables, and fenced code blocks.
+- Copy the complete answer to the clipboard after saving.
 - Save answers to `~/Documents/Xcode AI Answers/`.
-- Fall back to the clipboard when Accessibility cannot read the current AI response.
-- Add an Xcode Editor command: **Editor → Xcode AI Answer Saver → Save Clipboard as Markdown**.
-- Generate a readable filename from the first Markdown heading or the beginning of the answer.
-
-## Why two pieces?
-
-Apple's public XcodeKit Source Editor Extension API works with the source editor, but it does not expose the private Coding Intelligence conversation transcript directly. The companion macOS app therefore handles the live capture using the public macOS Accessibility API. The Xcode extension remains a small, reliable clipboard-to-Markdown fallback.
-
-This avoids private Xcode APIs and keeps the project maintainable when Xcode changes its internal AI UI.
+- Provide an Xcode Editor fallback command to save clipboard content as Markdown.
+- Use predictable filenames based on the answer title.
+- Stay entirely local. No API keys, AI APIs, or cloud services.
 
 ## Requirements
 
-- macOS 14 or newer
-- Xcode 15 or newer
-- An Xcode installation with Coding Intelligence enabled
+- macOS 14+
+- Xcode 15+
+- XcodeGen 2.46+ (recommended for project generation)
+- Xcode Coding Intelligence enabled
 
 ## Installation
 
-### 1. Open the project
-
-The repository includes `project.yml`. Generate the Xcode project with XcodeGen:
+Clone the repository:
 
 ```bash
-brew install xcodegen
+git clone https://github.com/Gabirell/Xcode-AI-to-Text.git
 cd Xcode-AI-to-Text
+```
+
+Generate the Xcode project:
+
+```bash
 xcodegen generate
 open XcodeAIAnswerSaver.xcodeproj
 ```
 
-If you do not use XcodeGen, follow [PROJECT_SETUP.md](PROJECT_SETUP.md).
+In Xcode, select **XcodeAIAnswerSaver** with **My Mac** as the destination and build/run with **⌘R**.
 
-### 2. Build the macOS app
-
-In Xcode, select the **XcodeAIAnswerSaver** macOS app target and Build & Run it once.
-
-The app runs as a menu-bar utility and does not need a normal Dock window.
-
-### 3. Grant Accessibility permission
-
-Go to:
+Then enable Accessibility:
 
 **System Settings → Privacy & Security → Accessibility**
 
-Enable **Xcode AI Answer Saver**.
+Add or enable **Xcode AI Answer Saver**.
 
-This permission is used only for reading the visible Xcode accessibility tree so the utility can recover the complete AI answer.
+## Using it
 
-### 4. Save an answer
+Keep the utility running in the menu bar as **AI Saver**.
 
-Open an Xcode Coding Intelligence conversation, bring the desired answer into view, and press:
+With the desired Xcode AI answer visible, press:
 
 **⌥⌘S**
 
-The utility saves a Markdown file in:
+The app will:
 
-```text
-~/Documents/Xcode AI Answers/
-```
+1. Read the visible answer.
+2. Save the complete Markdown to `~/Documents/Xcode AI Answers/`.
+3. Put that same complete Markdown on the clipboard.
 
-The same complete Markdown is also placed on the clipboard, ready to paste.
+That means you can immediately paste the answer into another chat, a README, a note, a documentation file, GitHub, or anywhere else that accepts text.
 
-### 5. Enable the Xcode Source Editor Extension
+## Xcode extension fallback
 
-Open:
-
-**System Settings → General → Login Items & Extensions → Xcode Source Editor**
-
-Enable **Xcode AI Answer Saver**.
-
-Restart Xcode if necessary.
-
-The fallback command is available from:
+The source editor extension adds:
 
 **Editor → Xcode AI Answer Saver → Save Clipboard as Markdown**
 
-## Clipboard fallback
+Use this when the full answer has already been copied to the clipboard but Accessibility capture is unavailable.
 
-When Accessibility cannot extract the AI response, copy the full answer in Xcode and invoke **Save Xcode AI Answer** again from the menu-bar app, or use the Xcode Source Editor command.
+## Why the companion app?
 
-## Development
+XcodeKit's public Source Editor Extension API does not expose Xcode's private Coding Intelligence conversation transcript directly. The companion macOS app therefore uses the public macOS Accessibility framework to read the visible Xcode UI, while the extension remains a small clipboard-to-Markdown fallback.
 
-Project generation is described in [PROJECT_SETUP.md](PROJECT_SETUP.md). The Markdown formatter has unit tests in `XcodeAIAnswerSaverTests`.
+No private Xcode APIs are required.
 
-The project uses only Apple frameworks:
+## Project structure
 
-- AppKit
-- ApplicationServices
-- XcodeKit
-- XCTest
+```text
+Xcode-AI-to-Text/
+├── XcodeAIAnswerSaver/
+│   ├── AppDelegate.swift
+│   ├── AccessibilityCapture.swift
+│   ├── AnswerSaver.swift
+│   ├── MarkdownFormatter.swift
+│   └── Info.plist
+├── XcodeAIAnswerSaverExtension/
+│   ├── SourceEditorExtension.swift
+│   ├── SourceEditorCommand.swift
+│   ├── MarkdownFormatter.swift
+│   └── Info.plist
+├── XcodeAIAnswerSaverTests/
+├── project.yml
+├── PROJECT_SETUP.md
+├── README.md
+└── LICENSE
+```
 
 ## Privacy
 
-Answers are saved locally to your Mac. The project does not send chat content to an external service.
+All captured answers are saved locally on your Mac. The application does not upload conversation content anywhere.
 
 ## Status
 
-Early utility for personal development workflows. The source-editor extension is intentionally kept small, while the macOS companion handles Xcode AI capture through Accessibility.
+Early personal-development utility. The capture mechanism depends on the accessibility hierarchy exposed by the current Xcode UI, so future Xcode releases may require compatibility updates.
 
 ## License
 
-MIT License. See [LICENSE](LICENSE).
+MIT

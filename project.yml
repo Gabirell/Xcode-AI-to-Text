@@ -1,0 +1,33 @@
+name: XcodeAIAnswerSaver
+options:
+  bundleIdPrefix: com.camilla
+  deploymentTarget:
+    macOS: "14.0"
+targets:
+  XcodeAIAnswerSaver:
+    type: application
+    platform: macOS
+    sources:
+      - path: XcodeAIAnswerSaver
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.camilla.XcodeAIAnswerSaver
+        INFOPLIST_FILE: XcodeAIAnswerSaver/Info.plist
+        SWIFT_VERSION: 5.0
+        MACOSX_DEPLOYMENT_TARGET: 14.0
+    dependencies:
+      - target: XcodeAIAnswerSaverExtension
+        embed: true
+  XcodeAIAnswerSaverExtension:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: XcodeAIAnswerSaverExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.camilla.XcodeAIAnswerSaver.Extension
+        INFOPLIST_FILE: XcodeAIAnswerSaverExtension/Info.plist
+        SWIFT_VERSION: 5.0
+        MACOSX_DEPLOYMENT_TARGET: 14.0
+        FRAMEWORK_SEARCH_PATHS: "$(DEVELOPER_FRAMEWORKS_DIR)"
+        LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks $(DEVELOPER_FRAMEWORKS_DIR)"
